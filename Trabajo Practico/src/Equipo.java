@@ -13,7 +13,7 @@ public class Equipo {
 	}
 	
 	
-	// Geters and seters
+	// Getters and setters
 	
 	public String getNombreEquipo() {
 		return nombreEquipo;
