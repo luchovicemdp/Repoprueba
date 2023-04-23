@@ -85,21 +85,22 @@ public class Practico {
 						
 						Equipo equipo=null;
 						EnumResultado resultado=null;
-						
+						 
 						if("X".equals(campos[2])) {
-							if ("Mariana".equals(campos[0])) {
-								
+							//if (participante1.getNombre().equals(campos[0])) {
+							if ("Mariana".equals(campos[0])) {	
 								if (partido.getGolesEq1()>partido.getGolesEq2()) {
 									participante1.sumarPuntos(1);
 									equipo=equipo1Pronostico;
 									resultado=EnumResultado.GANADOR;
 								}
-							}else if ("Pedro".equals(campos[0])) {
-								
+							}else if ("Pedro".equals(campos[0])) {	
+									//if (participante2.getNombre().equals(campos[0])) {
 									if (partido.getGolesEq1()>partido.getGolesEq2()){
 										participante2.sumarPuntos(1);
 										equipo=equipo1Pronostico;
-										resultado=EnumResultado.GANADOR;
+										resultado=EnumResultado.GANADOR;							
+													
 									}
 							}
 						}else if("X".equals(campos[3])) {
@@ -144,6 +145,11 @@ public class Practico {
 						puntos2+= pronostico2.getParticipante().getPuntos();
 					}
 				}	
+				
+					System.out.println("");
+					System.out.println("/////////////////////////////////////////////////////");
+					System.out.println("RESULTADO CON ARCHIVO CSV");
+					System.out.println("/////////////////////////////////////////////////////");
 					System.out.println("Los puntos obtenido por Mariana fue de: " + puntos1);
 					System.out.println("Los puntos obtenido por Pedro fue de: " + puntos2);
 					
@@ -158,34 +164,34 @@ public class Practico {
 			Connection cn =null;
 			Statement stm=null;
 			ResultSet rs=null;
+			int puntos1=0;
+			int puntos2=0;
 			
 		try {
 			cn= conexion.conectar();
 			stm=cn.createStatement();
 			rs=stm.executeQuery("select pr.idparticipante , p.nombre, pr.idequipo, pr.resultado,  \r\n"
-					+ "pa.equipo1, pa.equipo2, pa.goleseq1, pa.goleseq2 , pa.ronda\r\n"
+					+ "pa.equipo1, pa.equipo2, pa.goleseq1, pa.goleseq2 , pa.ronda, pts.equipoGanador, pts.puntos\r\n"
 					+ "from pronosticos pr\r\n"
 					+ "INNER JOIN participante p ON pr.idparticipante = p.idparticipante\r\n"
-					+ "INNER JOIN partido pa ON pr.idPartido= pa.idPartido");
-		
+					+ "INNER JOIN partido pa ON pr.idPartido= pa.idPartido\r\n"
+					+ "INNER JOIN puntos pts ON pr.idPartido=pts.idpartido");
+	
 			
 			while(rs.next()) {
 				
 				int idparticipante = Integer.parseInt(rs.getString(1));  //rs.getInt(1);
-				Equipo equipo1= new Equipo (rs.getString(5));
-				Equipo equipo2= new Equipo (rs.getString(6));
+				//Equipo equipo1= new Equipo (rs.getString(5));
+				//Equipo equipo2= new Equipo (rs.getString(6));
 				String nombre = rs.getString(2);
 				String Idequipo= rs.getString(3);
-				EnumResultado resultado = null;
-				int goleseq1= rs.getInt(7);
-				int goleseq2= rs.getInt(8);
-				int ronda= rs.getInt(9);
-				
-				//System.out.println(idparticipante + "-" + nombre + "-" + Idequipo + "-" + resultado + "-" + equipo1 +
-				//		"-" + equipo2 + "-" + goleseq1 + "-" + goleseq2 + "-" + ronda);
-				
-				Participante p= new Participante (rs.getString(2));
+				String resultado= rs.getString(4);
+				//int goleseq1= rs.getInt(7);
+				//int goleseq2= rs.getInt(8);
+				//int ronda= rs.getInt(9);
+				String equipoGAnador = rs.getString(10);
 				Partido partido =null;
+				int pts = rs.getInt(11);
 				
 				for (Partido partidoCol: partidos) {
 					if(partidoCol.getEquipo1().getNombreEquipo().equals(rs.getString(5))&&
@@ -195,18 +201,39 @@ public class Practico {
 			
 			}
 				}
+
 				
-				Equipo equipo=null;
 				
+				if("G".equals(resultado)) {
+							
+							if (Idequipo==equipoGAnador){
+								if (idparticipante==10) {
+									puntos1=puntos1+1;
+								}else if (idparticipante==20){
+									puntos2=puntos2+1;
+								}
+							}
+					
 				
-				if("G".equals(rs.getString(4))) {
-							equipo=equipo1;
-							resultado=EnumResultado.GANADOR;
-				
-							System.out.println("suma tres puntos: "+ rs.getString(2));			
+							
+				}else if ("E".equals(rs.getString(4))) {
+					
+						if (equipoGAnador=="-") {
+							if (idparticipante==10) {
+								puntos1=puntos1+1;
+					
+							}else if (idparticipante==20) {
+								puntos2=puntos2+1;
+						}
+						}		
 							
 				}
+						
+				System.out.println("La suma de puntos de  "+nombre + " es de: "+(pts*puntos1));							
+				//System.out.println("La suma de puntos de  "+ rs.getString(idparticipante)+ " es de: "+puntos2);	
 				}
+				
+				
 			
 		} catch (Exception e) {
 			e.printStackTrace();
